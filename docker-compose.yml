@@ -1,0 +1,49 @@
+version: '3.9'
+
+volumes:
+  db_data: {}
+
+networks:
+  minidoc_network:
+    driver: bridge
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    image: minidoc_api
+    container_name: minidoc_api
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./api:/api
+    env_file:
+      - ./api/.env
+    environment:
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-}
+    ports:
+      - "8000:8000"
+    networks:
+      - minidoc_network
+
+  db:
+    image: postgres:17
+    container_name: minidoc_postgres
+    hostname: db
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    env_file:
+      - ./api/.env
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      minidoc_network:
+        aliases:
+          - db
+
+  # TODO: Add frontend service
