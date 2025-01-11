@@ -54,4 +54,17 @@ services:
     ports:
       - "6379:6379"
 
-  # TODO: Add frontend service
+  web:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    image: minidoc_web
+    container_name: minidoc_web
+    depends_on:
+      - api
+    volumes:
+      - ./web:/web
+    ports:
+      - "5173:5173"
+    networks:
+      - minidoc_network
