@@ -17,6 +17,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
     volumes:
       - ./api:/api
     env_file:
@@ -45,5 +47,11 @@ services:
       minidoc_network:
         aliases:
           - db
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
 
   # TODO: Add frontend service
