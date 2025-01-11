@@ -54,17 +54,19 @@ services:
     ports:
       - "6379:6379"
 
-  web:
-    build:
-      context: .
-      dockerfile: web/Dockerfile
-    image: minidoc_web
-    container_name: minidoc_web
-    depends_on:
-      - api
-    volumes:
-      - ./web:/web
-    ports:
-      - "5173:5173"
-    networks:
-      - minidoc_network
+  # web:
+  #   build:
+  #     context: .
+  #     dockerfile: web/Dockerfile
+  #   image: minidoc_web
+  #   container_name: minidoc_web
+  #   platform: linux/amd64
+  #   depends_on:
+  #     - api
+  #   volumes:
+  #     - ./web:/app
+  #     - /app/node_modules # Prevent host's node_modules from being mounted
+  #   ports:
+  #     - "5173:5173"
+  #   networks:
+  #     - minidoc_network
