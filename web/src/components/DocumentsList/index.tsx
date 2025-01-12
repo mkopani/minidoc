@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -27,9 +28,10 @@ const headCells: readonly HeadCell[] = [
 const DocumentsList = (props: Props) => {
   const { documents } = props;
 
+  const navigate = useNavigate();
+
   const handleRowClick = (document: Document) => {
-    // TODO: Implement navigation to document detail page
-    console.log('clicked', document);
+    navigate(`/documents/${document.id}`);
   };
 
   return (

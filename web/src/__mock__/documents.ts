@@ -14,5 +14,3 @@ export const generateMockDocuments = (count: number): Document[] => {
     };
   });
 };
-
-export const mockDocuments: Document[] = generateMockDocuments(10);

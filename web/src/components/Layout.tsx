@@ -14,11 +14,22 @@ const Layout = (props: Props) => {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        minHeight: '100vh', // TODO: Verify
+        minHeight: '100vh',
+        height: '100%', // Ensure children can use 100% height
       }}
     >
       <Header />
-      <Container component="main" maxWidth="xl" sx={{ flexGrow: 1, py: 5 }}>
+      <Container
+        component="main"
+        maxWidth="xl"
+        sx={{
+          display: 'flex',
+          flexGrow: 1,
+          flexDirection: 'column',
+          py: 5,
+          height: '100%',
+        }}
+      >
         {props.children}
       </Container>
       <Footer />

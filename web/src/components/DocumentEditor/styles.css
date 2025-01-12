@@ -1,0 +1,9 @@
+.full-height {
+  height: 100%;
+  resize: vertical;
+  cursor: text;
+}
+
+.menu-controls {
+  cursor: auto;
+}

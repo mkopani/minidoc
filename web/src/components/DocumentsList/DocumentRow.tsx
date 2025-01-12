@@ -1,9 +1,10 @@
 import TableRow from '@mui/material/TableRow';
 import ArticleIcon from '@mui/icons-material/Article';
 import TableCell from '@mui/material/TableCell';
+import Typography from '@mui/material/Typography';
 
 import type { Document } from '@/models';
-import { Typography } from '@mui/material';
+import { formatUpdatedAt } from '@/util/general';
 
 interface Props {
   document: Document;
@@ -15,27 +16,6 @@ const PREVIEW_LIMIT = 50;
 const DocumentRow = (props: Props) => {
   const { document, onClick } = props;
   const { title, content, updated_at } = document;
-
-  // Make updated_at human-readable
-  const updatedAtDate = new Date(updated_at);
-  const now = new Date();
-  const diff = now.getTime() - updatedAtDate.getTime();
-  let updatedAtReadable = '';
-  if (diff < 1000) {
-    updatedAtReadable = 'now';
-  } else if (diff < 60 * 1000) {
-    const seconds = Math.floor(diff / 1000);
-    updatedAtReadable = `${seconds} second${seconds === 1 ? '' : 's'} ago`;
-  } else if (diff < 60 * 60 * 1000) {
-    const minutes = Math.floor(diff / (60 * 1000));
-    updatedAtReadable = `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
-  } else if (diff < 24 * 60 * 60 * 1000) {
-    const hours = Math.floor(diff / (60 * 60 * 1000));
-    updatedAtReadable = `${hours} hour${hours === 1 ? '' : 's'} ago`;
-  } else {
-    const days = Math.floor(diff / (24 * 60 * 60 * 1000));
-    updatedAtReadable = `${days} day${days === 1 ? '' : 's'} ago`;
-  }
 
   const contentPreview = content.length > PREVIEW_LIMIT
     ? `${content.slice(0, PREVIEW_LIMIT)}...` :
@@ -57,7 +37,7 @@ const DocumentRow = (props: Props) => {
           {contentPreview}
         </Typography>
       </TableCell>
-      <TableCell align="left">{updatedAtReadable}</TableCell>
+      <TableCell align="left">{formatUpdatedAt(updated_at)}</TableCell>
     </TableRow>
   );
 
