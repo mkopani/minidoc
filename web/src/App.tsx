@@ -7,8 +7,12 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Documents list */}
         <Route path="/" element={<DocumentsListPage />} />
-        <Route path="/documents/:id" element={<DocumentEditorPage />} />
+        {/* Edit document */}
+        <Route path="/document/:id" element={<DocumentEditorPage />} />
+        {/* Create document */}
+        <Route path="/document" element={<DocumentEditorPage />} />
       </Routes>
     </Router>
   );

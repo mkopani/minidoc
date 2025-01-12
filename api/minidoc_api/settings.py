@@ -24,11 +24,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-ogi0(+j*^pdq1@y!a!^msxzpevw&wje3x@@+=y2nz&6elc8+#r')
 
 ENV = os.getenv('DJANGO_ENV', 'development')
+IS_DEVELOPMENT = ENV == 'development'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = ENV == 'development'
+DEBUG = IS_DEVELOPMENT
 
-ALLOWED_HOSTS = ['localhost'] if ENV == 'production' else ['*']
+# ALLOWED_HOSTS = ['localhost'] if ENV == 'production' else ['*']
+ALLOWED_HOSTS = ['*']
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+]
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -41,10 +47,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'channels',
+    'corsheaders',
     'documents',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

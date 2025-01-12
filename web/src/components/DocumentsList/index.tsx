@@ -31,8 +31,12 @@ const DocumentsList = (props: Props) => {
   const navigate = useNavigate();
 
   const handleRowClick = (document: Document) => {
-    navigate(`/documents/${document.id}`);
+    navigate(`/document/${document.id}`);
   };
+
+  if (documents.length === 0) {
+    return null;
+  }
 
   return (
     <Paper variant="outlined">
