@@ -7,11 +7,13 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
+import api from '@/api';
 import type { Document } from '@/models';
 import DocumentRow from './DocumentRow';
 
 interface Props {
   documents: Document[];
+  onSuccessfulDelete: () => Promise<void>; // TODO: Move this to context
 }
 
 interface HeadCell {
@@ -26,12 +28,17 @@ const headCells: readonly HeadCell[] = [
 ];
 
 const DocumentsList = (props: Props) => {
-  const { documents } = props;
+  const { documents, onSuccessfulDelete } = props;
 
   const navigate = useNavigate();
 
   const handleRowClick = (document: Document) => {
     navigate(`/document/${document.id}`);
+  };
+
+  const handleDeleteDocument = async (document: Document) => {
+    await api.delete(`/documents/${document.id}/`);
+    await onSuccessfulDelete();
   };
 
   if (documents.length === 0) {
@@ -53,13 +60,21 @@ const DocumentsList = (props: Props) => {
                   {headCell.label}
                 </TableCell>
               ))}
+
+              {/* Spacer for delete button column */}
+              <TableCell padding="checkbox" />
             </TableRow>
           </TableHead>
 
           {/* Body */}
           <TableBody>
             {documents.map(document => (
-              <DocumentRow key={document.id} document={document} onClick={handleRowClick} />
+              <DocumentRow
+                key={document.id}
+                document={document}
+                onClick={handleRowClick}
+                onDelete={handleDeleteDocument}
+              />
             ))}
           </TableBody>
         </Table>
