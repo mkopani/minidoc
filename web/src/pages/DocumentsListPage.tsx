@@ -5,12 +5,15 @@ import DocumentsList from "@/components/DocumentsList";
 import Layout from "@/components/Layout";
 
 const DocumentsListPage = () => {
-  const mockDocuments = generateMockDocuments(7);
+  // TODO: Fetch documents from API
+  const documents = generateMockDocuments(7);
+
   return (
     <Layout>
       <Typography variant="h4" mb={3}>My Documents</Typography>
 
-      <DocumentsList documents={mockDocuments} />
+      {/* TODO: Implement "no documents" notice */}
+      <DocumentsList documents={documents} />
     </Layout>
   );
 };
