@@ -1,0 +1,29 @@
+[tool.black]
+line-length = 88
+target-version = ["py39", "py310"]
+exclude = '''
+/(
+  \.git
+  | \.mypy_cache
+  | \.pytest_cache
+  | __pycache__
+  | .env
+  | .venv
+  | migrations
+  | settings.py
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_django = ["django"]
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "DJANGO", "FIRSTPARTY", "LOCALFOLDER"]
+default_section = "THIRDPARTY"
+skip = [
+    ".git",
+    "__pycache__",
+    "migrations",
+    ".env",
+    ".venv"
+]
