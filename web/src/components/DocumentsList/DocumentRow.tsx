@@ -45,25 +45,31 @@ const DocumentRow = (props: Props) => {
   }
 
   return (
-    <TableRow
-      hover
-      onClick={() => onClick(document)}
-      sx={{ cursor: 'pointer' }}
-    >
-      <TableCell padding="checkbox" align="center">
-        <ArticleIcon color="primary" />
-      </TableCell>
+    <>
+      <TableRow
+        hover
+        onClick={() => onClick(document)}
+        sx={{ cursor: 'pointer' }}
+      >
+        <TableCell padding="checkbox" align="center">
+          <ArticleIcon color="primary" />
+        </TableCell>
 
-      <TableCell align="left">{title}</TableCell>
-      <TableCell align="left" color="textSecondary">
-        <DocumentPreview content={content} />
-      </TableCell>
-      <TableCell align="left">{formatUpdatedAt(updated_at)}</TableCell>
-      <TableCell align="right">
-        <IconButton onClick={handleDeleteButtonClick}>
-          <DeleteIcon color="secondary" />
-        </IconButton>
-      </TableCell>
+        <TableCell align="left" sx={{ fontWeight: 500 }}>{title}</TableCell>
+
+        <TableCell align="left" color="textSecondary">
+          <DocumentPreview content={content} />
+        </TableCell>
+
+        <TableCell align="left">{formatUpdatedAt(updated_at)}</TableCell>
+
+        <TableCell align="right">
+          <IconButton onClick={handleDeleteButtonClick}>
+            <DeleteIcon color="secondary" />
+          </IconButton>
+        </TableCell>
+
+      </TableRow>
       <Dialog
         open={deleteDialogOpen}
         onClose={handleDeleteDialogClose}
@@ -90,7 +96,7 @@ const DocumentRow = (props: Props) => {
           </Button>
         </DialogActions>
       </Dialog>
-    </TableRow>
+    </>
   );
 
 };
