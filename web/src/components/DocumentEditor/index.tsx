@@ -60,13 +60,15 @@ const DocumentEditor = (props: Props) => {
         }}
         content={currentContent}
         renderControls={() => (
-          <MenuControlsContainer className="menu-controls">
-            <MenuSelectHeading />
-            <MenuDivider />
-            <MenuButtonBold />
-            <MenuButtonItalic />
-            <MenuButtonUnderline />
-          </MenuControlsContainer>
+          <div onClick={(e) => e.stopPropagation()}>
+            <MenuControlsContainer className="menu-controls">
+              <MenuSelectHeading />
+              <MenuDivider />
+              <MenuButtonBold />
+              <MenuButtonItalic />
+              <MenuButtonUnderline />
+            </MenuControlsContainer>
+          </div>
         )}
       />
     </div>

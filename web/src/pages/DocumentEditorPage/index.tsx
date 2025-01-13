@@ -2,13 +2,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import CircularProgress from '@mui/material/CircularProgress';
 import Snackbar, { SnackbarProps } from "@mui/material/Snackbar";
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ArticleIcon from '@mui/icons-material/Article';
-import { useDebouncedCallback } from "use-debounce";
 
 import api from "@/api";
 import DocumentEditor from "@/components/DocumentEditor";
@@ -16,6 +15,7 @@ import Layout from "@/components/Layout";
 import { Document } from "@/models";
 import axios from "axios";
 import { formatUpdatedAt } from "@/util/general";
+import TitleInputField from "./TitleInputField";
 
 const DocumentEditorPage = () => {
   const { id } = useParams<{ id?: string }>();
@@ -32,12 +32,14 @@ const DocumentEditorPage = () => {
   const [documentTitle, setDocumentTitle] = useState<string>('Untitled document');
   const [editingTitle, setEditingTitle] = useState<boolean>(false);
 
-  const fetchDocument = async () => {
-    const { data: document } = await api.get<Document>(`/documents/${id}`);
+  const isLoading = !(isNewDocument || content);
 
-    documentRef.current = document;
-    setContent(document.content);
-    setDocumentTitle(document.title);
+  const fetchDocument = async () => {
+    const { data } = await api.get<Document>(`/documents/${id}`);
+
+    documentRef.current = data;
+    setContent(data.content);
+    setDocumentTitle(data.title);
   };
 
   const queueSnackbar = (snackbar: SnackbarProps) => {
@@ -49,18 +51,24 @@ const DocumentEditorPage = () => {
 
     try {
       if (isNewDocument) {
-        const response = await api.post<Document>('/documents/', {
+        const { data } = await api.post<Document>('/documents/', {
           title,
           content,
         });
-        documentRef.current = response.data;
+        // Update ref
+        documentRef.current = data;
 
         // Update address bar URL with new document ID
-        const { id } = response.data;
+        const { id } = data;
         idRef.current = id;
         window.history.replaceState({}, '', `/document/${id}`);
       } else {
-        await api.put(`/documents/${idRef.current}/`, {});
+        const { data } = await api.patch(`/documents/${idRef.current}/`, {
+          title,
+          content,
+        });
+        // Update ref
+        documentRef.current = data;
       }
 
       queueSnackbar({
@@ -79,8 +87,6 @@ const DocumentEditorPage = () => {
       console.error(error);
     }
   }, [content, documentTitle, isNewDocument]);
-
-  const debouncedSaveDocument = useDebouncedCallback(saveDocument, 5000);
 
   // Implement a method where the document is saved when the user presses Cmd+S on Mac or Ctrl+S on Windows
   const handleSaveShortcut = useCallback((event: KeyboardEvent) => {
@@ -108,6 +114,10 @@ const DocumentEditorPage = () => {
     setEditingTitle(true);
   };
 
+  const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setDocumentTitle(event.target.value);
+  }
+
   const handleFinishEditingTitle = async () => {
     setEditingTitle(false);
     let title = documentTitle.trim();
@@ -121,6 +131,7 @@ const DocumentEditorPage = () => {
   const handleOpenCollabDialog = () => {
     // TODO: Uncomment after implementing collaborators dialog
     // setDialogOpen(true);
+
     console.log('Collaborators dialog open');
   };
 
@@ -135,13 +146,6 @@ const DocumentEditorPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Debounce saving after 5 seconds of inactivity
-  useEffect(() => {
-    if (hasTypingBegunRef.current) {
-      debouncedSaveDocument();
-    }
-  }, [content, debouncedSaveDocument]);
-
   return (
     <Layout>
       <Stack spacing={2} direction="column" height="100%">
@@ -153,26 +157,13 @@ const DocumentEditorPage = () => {
             alignItems: 'center',
           }}
         >
-          {/* TODO: Move this into its own component */}
           <Stack spacing={1} direction="row" alignItems="center" sx={{ display: 'flex' }}>
             <ArticleIcon color="primary" />
             {editingTitle ? (
-              <TextField
-                autoFocus
-                margin="dense"
-                size="small"
-                variant="outlined"
-                label=""
-                placeholder="Enter document title"
+              <TitleInputField
                 value={documentTitle}
-                onChange={(event) => setDocumentTitle(event.target.value)}
+                onChange={handleChangeTitle}
                 onBlur={handleFinishEditingTitle}
-                sx={{
-                  fontWeight: 500,
-                  minWidth: '200px',
-                  width: `${Math.min(40, Math.max(documentTitle.length, 10))}ch`, // Limit width to 80 characters
-                  transition: "width 0.2s ease-in-out",
-                }}
               />
             ) : (
               <Typography
@@ -212,15 +203,27 @@ const DocumentEditorPage = () => {
         </Box>
 
         {/* Document editor */}
-        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          {documentRef.current ? (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%',
+            width: '100%',
+            justifyContent: 'center',
+            alignItems: isLoading ? 'center' : undefined,
+          }}
+        >
+          {isLoading ? (
+            <CircularProgress color="primary" size="3rem" />
+          ) : (
             <DocumentEditor
               currentContent={content}
               onChange={handleChange}
             />
-          ) : null}
+          )}
         </Box>
       </Stack>
+
       {/* TODO: Implement collaborators dialog */}
       {snackbars.map((snackbar, index) => (
         <Snackbar

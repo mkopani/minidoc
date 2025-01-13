@@ -2,9 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import Button, { ButtonProps } from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
 
-type Props = Omit<ButtonProps, 'children'>;
+const CreateDocumentButton = (props: ButtonProps) => {
+  const { children = 'Create Document', ...other } = props;
 
-const CreateDocumentButton = (props: Props) => {
   const navigate = useNavigate();
 
   const handleClick = () => navigate('/document');
@@ -15,9 +15,9 @@ const CreateDocumentButton = (props: Props) => {
       color="primary"
       onClick={handleClick}
       startIcon={<AddIcon />}
-      {...props}
+      {...other}
     >
-      Create Document
+      {children}
     </Button>
   );
 };

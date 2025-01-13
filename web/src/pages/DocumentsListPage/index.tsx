@@ -32,7 +32,12 @@ const DocumentsListPage = () => {
       <Typography variant="h4" mb={3}>My Documents</Typography>
 
       {documents.length ? (
-        <DocumentsList documents={documents} onSuccessfulDelete={fetchDocuments} />
+        <Stack spacing={1} direction="column">
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <CreateDocumentButton>New Document</CreateDocumentButton>
+          </Box>
+          <DocumentsList documents={documents} onSuccessfulDelete={fetchDocuments} />
+        </Stack>
       ) : (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
           <Stack spacing={2} direction="column" alignItems="center">
