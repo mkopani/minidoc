@@ -1,4 +1,4 @@
-import AddIcon from '@mui/icons-material/Add';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import Button, { ButtonProps } from '@mui/material/Button';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,7 +14,7 @@ const CreateDocumentButton = (props: ButtonProps) => {
       variant="contained"
       color="primary"
       onClick={handleClick}
-      startIcon={<AddIcon />}
+      startIcon={<NoteAddIcon />}
       {...other}
     >
       {children}

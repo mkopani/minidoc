@@ -29,20 +29,28 @@ const DocumentsListPage = () => {
 
   return (
     <Layout>
-      <Typography variant="h4" mb={3}>
-        My Documents
-      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          mb: 3,
+        }}
+      >
+        <Typography variant="h4" component="div">
+          My Documents
+        </Typography>
+        {documents.length ? (
+          <CreateDocumentButton>New Document</CreateDocumentButton>
+        ) : null}
+      </Box>
 
       {documents.length ? (
-        <Stack spacing={1} direction="column">
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <CreateDocumentButton>New Document</CreateDocumentButton>
-          </Box>
-          <DocumentsList
-            documents={documents}
-            onSuccessfulDelete={fetchDocuments}
-          />
-        </Stack>
+        <DocumentsList
+          documents={documents}
+          onSuccessfulDelete={fetchDocuments}
+        />
       ) : (
         <Box
           sx={{
