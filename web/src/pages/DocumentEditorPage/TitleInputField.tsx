@@ -9,8 +9,9 @@ const TitleInputField = (props: Props) => {
 
   // When user hits Enter or Return, blur the input field
   const handleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key === 'Enter' || event.key === 'Return') {
-      (event.currentTarget as HTMLInputElement).blur();
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      (event.target as HTMLInputElement).blur();
     }
   };
 
