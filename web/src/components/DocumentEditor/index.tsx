@@ -12,7 +12,7 @@ import {
   RichTextEditor,
   type RichTextEditorRef,
 } from 'mui-tiptap';
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
 interface Props {
@@ -50,6 +50,18 @@ const DocumentEditor = (props: Props) => {
       }
     }
   };
+
+  // Update editor content when `currentContent` changes
+  useEffect(() => {
+    if (rteRef?.current?.editor) {
+      const editor = rteRef.current.editor;
+
+      // Only update if content is different
+      if (editor.getHTML() !== currentContent) {
+        editor.commands.setContent(currentContent);
+      }
+    }
+  }, [currentContent]);
 
   return (
     <div style={{ minHeight: '100%' }} onClick={handleBlankAreaClick}>

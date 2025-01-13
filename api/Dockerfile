@@ -20,14 +20,21 @@ RUN pip install --upgrade pip
 COPY ./api/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install Daphne for ASGI support
+RUN pip install daphne
+
+# Copy entrypoint script into the container, make executable
+COPY ./api/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
 # Copy project files into the container
 COPY ./api .
 
-# Make entrypoint script executable
-RUN chmod +x entrypoint.sh
-
 # Set entrypoint script
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
 
 # Default command
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+# Use Daphne to serve the application
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "minidoc_api.asgi:application"]
