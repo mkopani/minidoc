@@ -1,5 +1,5 @@
-import { createTheme } from "@mui/material/styles";
-import { blueGrey } from "@mui/material/colors";
+import { blueGrey } from '@mui/material/colors';
+import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
   palette: {
@@ -8,8 +8,8 @@ const theme = createTheme({
     },
     secondary: {
       main: blueGrey[900],
-    }
-  }
+    },
+  },
 });
 
 export default theme;

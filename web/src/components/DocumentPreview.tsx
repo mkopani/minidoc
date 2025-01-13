@@ -10,15 +10,13 @@ const DocumentPreview = (props: Props) => {
 
   const rawTextContent = content.replace(/<\/?[^>]+(>|$)/g, '');
 
-  const contentPreview = rawTextContent.length > maxChars
-    ? `${rawTextContent.slice(0, maxChars)}...`
-    : rawTextContent;
+  const contentPreview =
+    rawTextContent.length > maxChars
+      ? `${rawTextContent.slice(0, maxChars)}...`
+      : rawTextContent;
 
   return (
-    <Typography
-      variant="body2"
-      color="textSecondary"
-    >
+    <Typography variant="body2" color="textSecondary">
       {contentPreview}
     </Typography>
   );

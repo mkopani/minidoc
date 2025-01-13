@@ -1,15 +1,15 @@
+import FolderOffOutlinedIcon from '@mui/icons-material/FolderOffOutlined';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import FolderOffOutlinedIcon from '@mui/icons-material/FolderOffOutlined';
+import { useEffect, useState } from 'react';
 
 import api from '@/api';
-import DocumentsList from "@/components/DocumentsList";
-import Layout from "@/components/Layout";
+import DocumentsList from '@/components/DocumentsList';
+import Layout from '@/components/Layout';
+import { Document } from '@/models';
 
 import CreateDocumentButton from './CreateDocumentButton';
-import { useEffect, useState } from 'react';
-import { Document } from '@/models';
 
 const DocumentsListPage = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -29,17 +29,29 @@ const DocumentsListPage = () => {
 
   return (
     <Layout>
-      <Typography variant="h4" mb={3}>My Documents</Typography>
+      <Typography variant="h4" mb={3}>
+        My Documents
+      </Typography>
 
       {documents.length ? (
         <Stack spacing={1} direction="column">
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <CreateDocumentButton>New Document</CreateDocumentButton>
           </Box>
-          <DocumentsList documents={documents} onSuccessfulDelete={fetchDocuments} />
+          <DocumentsList
+            documents={documents}
+            onSuccessfulDelete={fetchDocuments}
+          />
         </Stack>
       ) : (
-        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '100%',
+          }}
+        >
           <Stack spacing={2} direction="column" alignItems="center">
             <Box>
               <FolderOffOutlinedIcon color="secondary" sx={{ fontSize: 200 }} />

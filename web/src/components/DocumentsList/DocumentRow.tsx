@@ -1,3 +1,5 @@
+import ArticleIcon from '@mui/icons-material/Article';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -5,15 +7,13 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
-import TableRow from '@mui/material/TableRow';
-import ArticleIcon from '@mui/icons-material/Article';
-import DeleteIcon from '@mui/icons-material/Delete';
 import TableCell from '@mui/material/TableCell';
+import TableRow from '@mui/material/TableRow';
+import { useState } from 'react';
 
+import DocumentPreview from '@/components/DocumentPreview';
 import type { Document } from '@/models';
 import { formatUpdatedAt } from '@/util/general';
-import { useState } from 'react';
-import DocumentPreview from "@/components/DocumentPreview";
 
 interface Props {
   document: Document;
@@ -42,7 +42,7 @@ const DocumentRow = (props: Props) => {
 
     await onDelete(document);
     setDeleteDialogOpen(false);
-  }
+  };
 
   return (
     <>
@@ -55,7 +55,9 @@ const DocumentRow = (props: Props) => {
           <ArticleIcon color="primary" />
         </TableCell>
 
-        <TableCell align="left" sx={{ fontWeight: 500 }}>{title}</TableCell>
+        <TableCell align="left" sx={{ fontWeight: 500 }}>
+          {title}
+        </TableCell>
 
         <TableCell align="left" color="textSecondary">
           <DocumentPreview content={content} />
@@ -68,37 +70,26 @@ const DocumentRow = (props: Props) => {
             <DeleteIcon color="secondary" />
           </IconButton>
         </TableCell>
-
       </TableRow>
-      <Dialog
-        open={deleteDialogOpen}
-        onClose={handleDeleteDialogClose}
-      >
+      <Dialog open={deleteDialogOpen} onClose={handleDeleteDialogClose}>
         <DialogTitle>Delete Document</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to delete this document? This action is irreversible.
+            Are you sure you want to delete this document? This action is
+            irreversible.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={handleDeleteDialogClose}
-            color="secondary"
-          >
+          <Button onClick={handleDeleteDialogClose} color="secondary">
             Cancel
           </Button>
-          <Button
-            onClick={handleDeleteDocument}
-            color="error"
-            autoFocus
-          >
+          <Button onClick={handleDeleteDocument} color="error" autoFocus>
             Delete
           </Button>
         </DialogActions>
       </Dialog>
     </>
   );
-
 };
 
 export default DocumentRow;

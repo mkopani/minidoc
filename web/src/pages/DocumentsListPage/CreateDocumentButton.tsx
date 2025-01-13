@@ -1,6 +1,6 @@
-import { useNavigate } from 'react-router-dom';
-import Button, { ButtonProps } from '@mui/material/Button';
 import AddIcon from '@mui/icons-material/Add';
+import Button, { ButtonProps } from '@mui/material/Button';
+import { useNavigate } from 'react-router-dom';
 
 const CreateDocumentButton = (props: ButtonProps) => {
   const { children = 'Create Document', ...other } = props;

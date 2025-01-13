@@ -30,10 +30,10 @@ const TitleInputField = (props: Props) => {
         fontWeight: 500,
         minWidth: '200px',
         width: `${Math.min(40, Math.max(value.length, 10))}ch`, // Limit width to 80 characters
-        transition: "width 0.2s ease-in-out",
+        transition: 'width 0.2s ease-in-out',
       }}
     />
-  )
+  );
 };
 
 export default TitleInputField;

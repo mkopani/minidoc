@@ -20,4 +20,4 @@ export const formatUpdatedAt = (date: string) => {
   }
 
   return updatedAtReadable;
-}
+};

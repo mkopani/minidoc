@@ -1,7 +1,7 @@
-import { useRef } from "react";
-import { useDebouncedCallback } from "use-debounce";
-import StarterKit from "@tiptap/starter-kit";
+import './styles.css';
+
 import Underline from '@tiptap/extension-underline';
+import StarterKit from '@tiptap/starter-kit';
 import {
   MenuButtonBold,
   MenuButtonItalic,
@@ -11,8 +11,9 @@ import {
   MenuSelectHeading,
   RichTextEditor,
   type RichTextEditorRef,
-} from "mui-tiptap";
-import './styles.css';
+} from 'mui-tiptap';
+import { useRef } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
 
 interface Props {
   currentContent: string;
@@ -33,12 +34,14 @@ const DocumentEditor = (props: Props) => {
   const handleBlankAreaClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (rteRef?.current?.editor) {
       const editor = rteRef.current.editor;
-      
+
       // Maintain focus
       editor.commands.focus();
 
       // Check if the click happened below the content
-      const editorElement = document.querySelector('.ProseMirror') as HTMLElement;
+      const editorElement = document.querySelector(
+        '.ProseMirror'
+      ) as HTMLElement;
       const { bottom } = editorElement.getBoundingClientRect();
       if (event.clientY > bottom) {
         // Set cursor position to the end of the document
@@ -46,7 +49,7 @@ const DocumentEditor = (props: Props) => {
         editor.commands.setTextSelection(size);
       }
     }
-  }
+  };
 
   return (
     <div style={{ minHeight: '100%' }} onClick={handleBlankAreaClick}>
