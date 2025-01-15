@@ -60,7 +60,9 @@ const DocumentRow = (props: Props) => {
         </TableCell>
 
         <TableCell align="left" color="textSecondary">
-          <DocumentPreview content={content} />
+          {/* TODO: Re-enable after figuring out YDoc state format */}
+          {/* <DocumentPreview content={content} /> */}
+          &nbsp;
         </TableCell>
 
         <TableCell align="left">{formatUpdatedAt(updated_at)}</TableCell>
