@@ -6,13 +6,16 @@ import { useEffect, useState } from 'react';
 
 import api from '@/api';
 import DocumentsList from '@/components/DocumentsList';
+import FullSpanBox from '@/components/FullSpanBox';
 import Layout from '@/components/Layout';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { Document } from '@/models';
 
 import CreateDocumentButton from './CreateDocumentButton';
 
 const DocumentsListPage = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
 
   // Fetch documents from API
   const fetchDocuments = async () => {
@@ -21,6 +24,8 @@ const DocumentsListPage = () => {
       setDocuments(response.data);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,7 +56,11 @@ const DocumentsListPage = () => {
       </Box>
 
       {/* Documents view */}
-      {documents.length ? (
+      {loading ? (
+        <FullSpanBox>
+          <LoadingSpinner />
+        </FullSpanBox>
+      ) : documents.length ? (
         <DocumentsList
           documents={documents}
           onSuccessfulDelete={fetchDocuments}

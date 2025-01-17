@@ -3,7 +3,6 @@
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArticleIcon from '@mui/icons-material/Article';
 import Box from '@mui/material/Box';
-import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
@@ -15,7 +14,9 @@ import * as Y from 'yjs';
 
 import api from '@/api';
 import DocumentEditor from '@/components/DocumentEditor';
+import FullSpanBox from '@/components/FullSpanBox';
 import Layout from '@/components/Layout';
+import LoadingSpinner from '@/components/LoadingSpinner';
 import useWebsocketProvider from '@/hooks/useWebsocketProvider';
 import { Document } from '@/models';
 import { formatUpdatedAt } from '@/util/general';
@@ -195,22 +196,9 @@ const DocumentEditorPage = () => {
         </Box>
 
         {/* Document editor */}
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-            width: '100%',
-            justifyContent: 'center',
-            alignItems: loading ? 'center' : undefined,
-          }}
-        >
-          {loading ? (
-            <CircularProgress color="primary" size="3rem" />
-          ) : (
-            <DocumentEditor yDocRef={yDocRef} />
-          )}
-        </Box>
+        <FullSpanBox alignItems={loading ? 'center' : undefined}>
+          {loading ? <LoadingSpinner /> : <DocumentEditor yDocRef={yDocRef} />}
+        </FullSpanBox>
       </Stack>
     </Layout>
   );

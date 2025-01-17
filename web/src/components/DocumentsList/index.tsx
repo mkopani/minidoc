@@ -14,7 +14,7 @@ import DocumentRow from './DocumentRow';
 
 interface Props {
   documents: Document[];
-  onSuccessfulDelete: () => Promise<void>; // TODO: Move this to context
+  onSuccessfulDelete: () => Promise<void>; // TODO: Move this to store
 }
 
 interface HeadCell {
@@ -24,7 +24,7 @@ interface HeadCell {
 
 const headCells: readonly HeadCell[] = [
   { id: 'title', label: 'Title' },
-  { id: 'content', label: '' },
+  { id: 'readable_content', label: '' },
   { id: 'updated_at', label: 'Last Updated' },
 ];
 
