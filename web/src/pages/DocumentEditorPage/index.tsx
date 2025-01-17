@@ -47,12 +47,16 @@ const DocumentEditorPage = () => {
     }
   }, []);
 
+  const _setLastUpdatedToNow = () => {
+    setLastUpdatedAt(new Date().toISOString());
+  };
+
   const handleTitleUpdate = (title: string) => {
     setTitle(title);
   };
 
   const handleSave = () => {
-    setLastUpdatedAt(new Date().toISOString());
+    _setLastUpdatedToNow();
   };
 
   const handleLoad = () => {
@@ -105,6 +109,11 @@ const DocumentEditorPage = () => {
     if ((event.metaKey || event.ctrlKey) && event.key === 's') {
       event.preventDefault();
       publishSaveDocument();
+
+      // Set date here; WebSocket provider will skip messages from same senderId
+      if (!lastUpdatedAt) {
+        _setLastUpdatedToNow();
+      }
     }
   }, []);
 
