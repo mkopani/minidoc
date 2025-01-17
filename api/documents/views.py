@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Document
-from .serializers import DocumentSerializer, UpsertDocumentSerializer
+from .serializers import DocumentSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +18,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
     Routes:
     - GET /documents/ -> list(): Get list of documents
-    - POST /documents/ -> create(): Create a new document
     - GET /documents/{id}/ -> retrieve(): Get a single document
-    - PUT /documents/{id}/ -> update(): Update a single document
     - DELETE /documents/{id}/ -> destroy(): Delete a single document
 
     Not yet implemented:
@@ -31,11 +29,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
     permission_classes = [IsAuthenticated]
-
-    def get_serializer_class(self):
-        if self.action in ["create", "update", "partial_update"]:
-            return UpsertDocumentSerializer
-        return super().get_serializer_class()
 
     def perform_create(self, serializer):
         # TODO: Uncomment this after implementing auth and adding author field
@@ -59,40 +52,15 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
         return super().list(request, *args, **kwargs)
 
-    def create(self, request, *args, **kwargs):
-        # TODO: Set user ID as author of document
-
-        # Use the UpsertDocumentSerializer for validation and creation
-        partial_serializer = self.get_serializer(data=request.data)
-        partial_serializer.is_valid(raise_exception=True)
-        self.perform_create(partial_serializer)
-
-        # Retrieve the fully created instance and return it with the full serializer
-        full_serializer = DocumentSerializer(
-            partial_serializer.instance, context=self.get_serializer_context()
-        )
-        return Response(full_serializer.data, status=status.HTTP_201_CREATED)
-
-    def update(self, request, *args, **kwargs):
-        # TODO: Validate that user is author of document
-
-        # Retrieve the existing instance
-        instance = self.get_object()
-
-        # Use the UpsertDocumentSerializer for validation and updating
-        partial_serializer = self.get_serializer(
-            instance, data=request.data, partial=True
-        )
-        partial_serializer.is_valid(raise_exception=True)
-        self.perform_update(partial_serializer)
-
-        # Retrieve the updated instance and return it with the full serializer
-        full_serializer = DocumentSerializer(
-            partial_serializer.instance, context=self.get_serializer_context()
-        )
-        return Response(full_serializer.data, status=status.HTTP_200_OK)
-
     @action(detail=True, methods=["patch"], url_path="add_collaborator")
     def add_collaborator(self, request):
         # TODO: Implement
         return Response("Not implemented", status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    # ********************************************************************
+    # Disable create and update endpoints; this is handled via WebSocket
+    def create(self, request, *args, **kwargs):
+        pass
+
+    def update(self, request, *args, **kwargs):
+        pass

@@ -6,10 +6,4 @@ from .models import Document
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
-        fields = "__all__"
-
-
-class UpsertDocumentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Document
-        fields = ["title", "content"]
+        exclude = ["content"]  # Avoid returning binary data to the client
