@@ -66,8 +66,7 @@ const DocumentEditorPage = () => {
     onLoad: handleLoad,
   });
 
-  // TODO: Review
-  const fetchDocument = async () => {
+  const fetchDocumentMetadata = async () => {
     const { data } = await api.get<Document>(`/documents/${id}`);
 
     setTitle(data.title);
@@ -120,7 +119,7 @@ const DocumentEditorPage = () => {
 
   useEffect(() => {
     if (!isNewDocument) {
-      fetchDocument();
+      fetchDocumentMetadata();
     }
   }, [isNewDocument]);
 
