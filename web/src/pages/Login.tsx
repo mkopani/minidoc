@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
-import api from '@/api';
+import api, { refreshCSRFToken } from '@/api';
 import Layout from '@/components/Layout';
 import { setUser } from '@/slices/user';
 
@@ -35,11 +35,10 @@ const LoginPage = () => {
         password,
       });
 
-      console.log('data', data);
-
       // Save user data to store
       dispatch(setUser({ username: data.username, token: data.token }));
-
+      // Refresh CSRF token
+      await refreshCSRFToken();
       // Redirect user to home page
       navigate('/');
     } catch (error) {

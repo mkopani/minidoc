@@ -8,13 +8,14 @@ from django.urls import include, path
 
 from documents.views import DocumentViewSet
 
-from .views import LoginView, LogoutView
+from .views import LoginView, LogoutView, CSRFTokenView
 
 router = DefaultRouter()
 router.register(r"documents", DocumentViewSet, basename="document")
 
 urlpatterns = [
     path("auth/", include([
+        path("csrf-token/", CSRFTokenView.as_view(), name="csrf-token"),
         path("login/", LoginView.as_view(), name="login"),
         path("logout/", LogoutView.as_view(), name="logout"),
     ])),

@@ -1,4 +1,6 @@
 # from django.contrib.auth.models import User
+import logging
+
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -6,6 +8,8 @@ from rest_framework.response import Response
 
 from .models import Document
 from .serializers import DocumentSerializer, UpsertDocumentSerializer
+
+logger = logging.getLogger(__name__)
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
@@ -40,6 +44,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
         super().perform_create(serializer)
 
     def list(self, request, *args, **kwargs):
+        logger.info(f"User {request.user} is listing documents and is authenticated: {request.user.is_authenticated}")
+        if not request.user.is_authenticated:
+            logger.warning("User is not authenticated")
+            return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
         # TODO: Add query param for user ID to fetch docs owned by user or
         # collaborated on by user
 

@@ -7,7 +7,7 @@ import Typography from '@mui/material/Typography';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router-dom';
 
-import api from '@/api';
+import api, { refreshCSRFToken } from '@/api';
 import { clearUser } from '@/slices/user';
 import { type RootState } from '@/store';
 
@@ -28,7 +28,8 @@ const Header = () => {
 
     // Clear user data from store
     dispatch(clearUser());
-
+    // Refresh CSRF token
+    await refreshCSRFToken();
     // Redirect user to login
     navigate('/login');
   };
