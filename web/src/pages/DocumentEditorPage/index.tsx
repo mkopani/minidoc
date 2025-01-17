@@ -1,8 +1,10 @@
 // import PersonAddIcon from '@mui/icons-material/PersonAdd';
 // import Button from '@mui/material/Button';
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import ArticleIcon from '@mui/icons-material/Article';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
+import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -139,6 +141,14 @@ const DocumentEditorPage = () => {
             alignItems="center"
             sx={{ display: 'flex' }}
           >
+            <IconButton
+              color="primary"
+              size="small"
+              // TODO: Define routes.ts and use dashboard route here
+              onClick={() => window.history.back()}
+            >
+              <ArrowBackIosNewIcon />
+            </IconButton>
             <ArticleIcon color="primary" />
             {editingTitle ? (
               <TitleInputField
