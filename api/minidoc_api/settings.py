@@ -32,12 +32,17 @@ IS_DEVELOPMENT = ENV == "development"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = IS_DEVELOPMENT
 
-# ALLOWED_HOSTS = ['localhost'] if ENV == 'production' else ['*']
-ALLOWED_HOSTS = ["*"]
+FRONTEND_ORIGIN = "http://localhost:5173"  # TODO: Move this to env or secrets manager
+ALLOWED_HOSTS = ["*"]  # TODO: Update this for production
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    FRONTEND_ORIGIN,
 ]
 CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    FRONTEND_ORIGIN,
+]
 
 # Application definition
 
@@ -49,6 +54,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework.authtoken",
     "channels",
     "corsheaders",
     "documents",
@@ -99,6 +105,14 @@ DATABASES = {
         "HOST": os.getenv("POSTGRES_HOST", "localhost"),
         "PORT": os.getenv("POSTGRES_PORT", "5432"),
     }
+}
+
+
+# Rest Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
 }
 
 
