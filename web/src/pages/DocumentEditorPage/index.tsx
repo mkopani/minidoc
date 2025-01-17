@@ -100,15 +100,12 @@ const DocumentEditorPage = () => {
   // };
 
   // Implement a method where the document is saved when the user presses Cmd+S on Mac or Ctrl+S on Windows
-  const handleSaveShortcut = useCallback(
-    (event: KeyboardEvent) => {
-      if ((event.metaKey || event.ctrlKey) && event.key === 's') {
-        event.preventDefault();
-        publishSaveDocument();
-      }
-    },
-    []
-  );
+  const handleSaveShortcut = useCallback((event: KeyboardEvent) => {
+    if ((event.metaKey || event.ctrlKey) && event.key === 's') {
+      event.preventDefault();
+      publishSaveDocument();
+    }
+  }, []);
 
   useEffect(() => {
     window.addEventListener('keydown', handleSaveShortcut);

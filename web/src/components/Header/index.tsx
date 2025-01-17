@@ -1,7 +1,7 @@
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider,useTheme } from '@mui/material/styles';
+import { createTheme, ThemeProvider, useTheme } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { useDispatch, useSelector } from 'react-redux';
@@ -50,26 +50,28 @@ const Header = () => {
     <AppBar position="static">
       <Toolbar>
         <Container maxWidth="xl">
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              <NavLink to="/" style={{ textDecoration: 'none', color: 'white' }}>
+              <NavLink
+                to="/"
+                style={{ textDecoration: 'none', color: 'white' }}
+              >
                 MiniDoc
               </NavLink>
             </Typography>
 
             <ThemeProvider theme={theme}>
               {isAuthenticated ? (
-                <NavButton onClick={handleLogout}>
-                  Logout
-                </NavButton>
+                <NavButton onClick={handleLogout}>Logout</NavButton>
               ) : (
-                <NavLink
-                  to="/login"
-                  style={{ textDecoration: 'none' }}
-                >
-                  <NavButton>
-                    Login
-                  </NavButton>
+                <NavLink to="/login" style={{ textDecoration: 'none' }}>
+                  <NavButton>Login</NavButton>
                 </NavLink>
               )}
             </ThemeProvider>

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { v4 as uuid } from 'uuid';
-import { WebsocketProvider } from 'y-websocket'
+import { WebsocketProvider } from 'y-websocket';
 import * as Y from 'yjs';
 
 export enum WebsocketEventType {
@@ -27,7 +27,7 @@ const useWebsocketProvider = (props: Props) => {
       const provider = new WebsocketProvider(
         `ws://localhost:8000/ws/documents/`,
         documentId,
-        yDocRef.current,
+        yDocRef.current
       );
       providerRef.current = provider;
 
@@ -78,7 +78,10 @@ const useWebsocketProvider = (props: Props) => {
     };
   }, [documentId]);
 
-  const sendMessage = (eventType: WebsocketEventType, data: Record<string, unknown> = {}) => {
+  const sendMessage = (
+    eventType: WebsocketEventType,
+    data: Record<string, unknown> = {}
+  ) => {
     if (providerRef?.current?.ws && providerRef.current.wsconnected) {
       providerRef.current.ws.send(
         JSON.stringify({ eventType, senderId: senderIdRef.current, ...data })
@@ -92,7 +95,7 @@ const useWebsocketProvider = (props: Props) => {
 
   const publishUpdateTitle = (title: string) => {
     sendMessage(WebsocketEventType.TITLE_UPDATE, { title });
-  }
+  };
 
   return { publishSaveDocument, publishUpdateTitle };
 };

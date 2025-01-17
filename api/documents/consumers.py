@@ -14,12 +14,12 @@ class DocumentConsumer(YjsConsumer):
     state_modified: bool
 
     def __init__(self, *args, **kwargs):
-        self.initial_state = b''
+        self.initial_state = b""
         self.state_modified = False
         super().__init__(*args, **kwargs)
 
     def get_document_id(self):
-        return self.scope['url_route']['kwargs']['document_id']
+        return self.scope["url_route"]["kwargs"]["document_id"]
 
     def make_room_name(self):
         """
@@ -28,7 +28,7 @@ class DocumentConsumer(YjsConsumer):
 
         room_name = self.get_document_id()
         return re.sub(r"[^a-zA-Z0-9]", "_", room_name)
-    
+
     async def make_ydoc(self):
         from .models import Document
 
@@ -37,55 +37,54 @@ class DocumentConsumer(YjsConsumer):
         # Fetch the document or create a new one
         db_document, _ = await sync_to_async(Document.objects.get_or_create)(
             id=self.get_document_id(),
-            defaults={'title': 'Untitled Document', 'content': b''},  # Use default binary content
+            defaults={
+                "title": "Untitled Document",
+                "content": b"",
+            },  # Use default binary content
         )
 
         # Initialize the document with the content from the database
-        if db_document.content != b'':
+        if db_document.content != b"":
             Y.apply_update(doc, db_document.content)
             self.initial_state = db_document.content
 
         doc.observe_after_transaction(self.on_update_event)
         return doc
-    
+
     def on_update_event(self, event):
         self.state_modified = True
-    
+
     async def receive(self, text_data=None, bytes_data=None):
         if text_data:
             try:
                 data = json.loads(text_data)
-                event_type = data.get('eventType')
+                event_type = data.get("eventType")
 
                 if event_type == "TITLE_UPDATE":
-                    title = data.get('title', 'Untitled Document').strip()
+                    title = data.get("title", "Untitled Document").strip()
                     await self.update_document_title(title)
 
                     await self.channel_layer.group_send(
                         self.room_name,
                         {
-                            'type': 'broadcast_title_update',
-                            'eventType': 'TITLE_UPDATE',
-                            'title': title,
-                        }
+                            "type": "broadcast_title_update",
+                            "eventType": "TITLE_UPDATE",
+                            "title": title,
+                        },
                     )
                 elif event_type == "SAVE":
                     await self.save_changes_to_document()
                     await self.channel_layer.group_send(
                         self.room_name,
                         {
-                            'type': 'broadcast_save',
-                            'eventType': 'SAVE',
-                        }
+                            "type": "broadcast_save",
+                            "eventType": "SAVE",
+                        },
                     )
                 else:
-                    await self.send(
-                        json.dumps({'error': 'Invalid event type'})
-                    )
+                    await self.send(json.dumps({"error": "Invalid event type"}))
             except json.JSONDecodeError:
-                await self.send(
-                    json.dumps({'error': 'Invalid JSON data'})
-                )
+                await self.send(json.dumps({"error": "Invalid JSON data"}))
                 return
             return
 
@@ -97,7 +96,10 @@ class DocumentConsumer(YjsConsumer):
             return await super().disconnect(code)
 
         # Only save to database if the document has been modified
-        if self.initial_state != b'' and self.initial_state != Y.encode_state_as_update(self.ydoc):
+        if (
+            self.initial_state != b""
+            and self.initial_state != Y.encode_state_as_update(self.ydoc)
+        ):
             # Save document content to database
             await self.save_changes_to_document()
 
@@ -105,17 +107,21 @@ class DocumentConsumer(YjsConsumer):
 
     async def broadcast_title_update(self, event):
         await self.send(
-            json.dumps({
-                'eventType': event['eventType'],
-                'title': event['title'],
-            })
+            json.dumps(
+                {
+                    "eventType": event["eventType"],
+                    "title": event["title"],
+                }
+            )
         )
 
     async def broadcast_save(self, event):
         await self.send(
-            json.dumps({
-                'eventType': event['eventType'],
-            })
+            json.dumps(
+                {
+                    "eventType": event["eventType"],
+                }
+            )
         )
 
     # TODO: Implement this

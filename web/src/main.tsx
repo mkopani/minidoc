@@ -9,7 +9,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import App from '@/App.tsx';
 import ThemeProvider from '@/components/ThemeProvider.tsx';
 
-import { persistor,store } from './store';
+import { persistor, store } from './store';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

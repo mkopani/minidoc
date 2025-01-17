@@ -24,19 +24,24 @@ class LoginView(APIView):
         user = authenticate(request, username=username, password=password)
 
         logger.info(f"User {username} is logging in: {user}")
-        
+
         if user is not None:
             login(request, user)
             # Generate or retrieve token
             token, _ = Token.objects.get_or_create(user=user)
             logger.info(f"User {user.username} logged in successfully.")
-            return Response({
-                "username": user.username,
-                "token": token.key,
-            }, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "username": user.username,
+                    "token": token.key,
+                },
+                status=status.HTTP_200_OK,
+            )
 
         logger.warning(f"Login failed for username: {username}")
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class LogoutView(APIView):

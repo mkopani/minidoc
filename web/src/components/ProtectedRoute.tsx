@@ -1,7 +1,7 @@
-import { useSelector } from "react-redux";
+import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 
-import { type RootState } from "@/store";
+import { type RootState } from '@/store';
 
 interface Props {
   element: JSX.Element;

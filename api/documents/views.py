@@ -44,10 +44,14 @@ class DocumentViewSet(viewsets.ModelViewSet):
         super().perform_create(serializer)
 
     def list(self, request, *args, **kwargs):
-        logger.info(f"User {request.user} is listing documents and is authenticated: {request.user.is_authenticated}")
+        logger.info(
+            f"User {request.user} is listing documents and is authenticated: {request.user.is_authenticated}"
+        )
         if not request.user.is_authenticated:
             logger.warning("User is not authenticated")
-            return Response({"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"error": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED
+            )
         # TODO: Add query param for user ID to fetch docs owned by user or
         # collaborated on by user
 
