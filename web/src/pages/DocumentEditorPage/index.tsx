@@ -9,6 +9,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { v4 as uuid } from 'uuid';
 import * as Y from 'yjs';
 
 import api from '@/api';
@@ -37,7 +38,15 @@ const DocumentEditorPage = () => {
   
   // };
 
+  const idRef = useRef(id || uuid());
   const yDocRef = useRef(new Y.Doc());
+
+  useEffect(() => {
+    if (!id) {
+      // Generate new uuid and replace the current URL
+      window.history.replaceState(null, '', `/document/${idRef.current}`);
+    }
+  }, []);
 
   const handleTitleUpdate = (title: string) => {
     setTitle(title);
@@ -52,7 +61,7 @@ const DocumentEditorPage = () => {
   };
 
   const { publishSaveDocument, publishUpdateTitle } = useWebsocketProvider({
-    documentId: id,
+    documentId: idRef.current,
     yDocRef,
     onTitleUpdate: handleTitleUpdate,
     onSave: handleSave,
@@ -76,13 +85,16 @@ const DocumentEditorPage = () => {
 
   const handleFinishEditingTitle = async () => {
     setEditingTitle(false);
+    const currentTitle = title;
     let newTitle = title.trim();
     if (!newTitle) {
       newTitle = 'Untitled document';
       setTitle(title);
     }
 
-    publishUpdateTitle(newTitle);
+    if (newTitle !== currentTitle) {
+      publishUpdateTitle(newTitle);
+    }
   };
 
   // TODO: Uncomment after implementing collaborators dialog

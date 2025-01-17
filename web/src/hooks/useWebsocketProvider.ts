@@ -9,7 +9,7 @@ export enum WebsocketEventType {
 }
 
 interface Props {
-  documentId?: string;
+  documentId: string;
   yDocRef: React.MutableRefObject<Y.Doc>;
   onTitleUpdate: (title: string) => void;
   onSave: () => void;
@@ -23,10 +23,6 @@ const useWebsocketProvider = (props: Props) => {
   const senderIdRef = useRef<string>(uuid());
 
   useEffect(() => {
-    if (!documentId) {
-      return;
-    }
-
     try {
       const provider = new WebsocketProvider(
         `ws://localhost:8000/ws/documents/`,
@@ -64,6 +60,7 @@ const useWebsocketProvider = (props: Props) => {
           } catch {
             // Do nothing; message contains byte changes for Yjs
             if (originalOnMessage) {
+              console.log('This ran')
               originalOnMessage.call(provider.ws!, event);
             }
           }
