@@ -124,7 +124,6 @@ class DocumentConsumer(YjsConsumer):
             )
         )
 
-    # TODO: Implement this
     async def save_changes_to_document(self):
         """Save in-memory document state to the database."""
 
