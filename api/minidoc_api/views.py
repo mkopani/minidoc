@@ -21,15 +21,18 @@ class LoginView(APIView):
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
+        # Authenticate user
         user = authenticate(request, username=username, password=password)
 
         logger.info(f"User {username} is logging in: {user}")
 
         if user is not None:
+            # Persist user in the request so that the user doesn't have to
+            # re-authenticate on every request
             login(request, user)
+
             # Generate or retrieve token
             token, _ = Token.objects.get_or_create(user=user)
-            logger.info(f"User {user.username} logged in successfully.")
             return Response(
                 {
                     "username": user.username,
@@ -56,5 +59,9 @@ class LogoutView(APIView):
 
 class CSRFTokenView(APIView):
     def get(self, request):
+        """
+        Get CSRF token for the user
+        """
+
         csrf_token = get_token(request)
         return Response({"csrfToken": csrf_token}, status=status.HTTP_200_OK)
