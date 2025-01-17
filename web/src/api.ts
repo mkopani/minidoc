@@ -6,7 +6,9 @@ import { store } from './store';
 
 // Define reusable axios instance with base URL, CSRF token and auth headers
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  // TODO: Uncomment after setting up demo-friendly environment variables
+  // baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: 'http://localhost:8000',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
