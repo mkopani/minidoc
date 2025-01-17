@@ -27,9 +27,32 @@ if [ "$CREATE_SUPERUSER" = "true" ]; then
 from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+    User.objects.create_superuser('admin', 'admin@example.com', 'pass123')
 EOF
 fi
+
+# Create mock users automatically
+echo "Creating mock users..."
+python manage.py shell <<EOF
+from django.contrib.auth import get_user_model
+User = get_user_model()
+
+mock_users = [
+    {'username': 'user1', 'email': 'user1@example.com', 'password': 'pass123'},
+    {'username': 'user2', 'email': 'user2@example.com', 'password': 'pass123'},
+    {'username': 'user3', 'email': 'user3@example.com', 'password': 'pass123'},
+    {'username': 'user4', 'email': 'user4@example.com', 'password': 'pass123'},
+    {'username': 'user5', 'email': 'user5@example.com', 'password': 'pass123'},
+]
+
+for user_data in mock_users:
+    if not User.objects.filter(username=user_data['username']).exists():
+        User.objects.create_user(
+            username=user_data['username'],
+            email=user_data['email'],
+            password=user_data['password']
+        )
+EOF
 
 # Start server
 echo "Starting server..."
