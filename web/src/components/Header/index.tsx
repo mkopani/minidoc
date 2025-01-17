@@ -1,7 +1,7 @@
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
+import { createTheme, ThemeProvider,useTheme } from '@mui/material/styles';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,9 +11,21 @@ import api, { refreshCSRFToken } from '@/api';
 import { clearUser } from '@/slices/user';
 import { type RootState } from '@/store';
 
+import NavButton from './NavButton';
+
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const currentTheme = useTheme();
+  const theme = createTheme({
+    ...currentTheme,
+    palette: {
+      primary: {
+        main: '#FFFFFF',
+      },
+    },
+  });
 
   const user = useSelector((state: RootState) => state.user);
   const isAuthenticated = Boolean(user.token);
@@ -45,18 +57,22 @@ const Header = () => {
               </NavLink>
             </Typography>
 
-            {isAuthenticated ? (
-              <Button onClick={handleLogout} color="secondary">
-                Logout
-              </Button>
-            ) : (
-              <NavLink
-                to="/login"
-                style={{ textDecoration: 'none', color: 'white' }}
-              >
-                Login
-              </NavLink>
-            )}
+            <ThemeProvider theme={theme}>
+              {isAuthenticated ? (
+                <NavButton onClick={handleLogout}>
+                  Logout
+                </NavButton>
+              ) : (
+                <NavLink
+                  to="/login"
+                  style={{ textDecoration: 'none' }}
+                >
+                  <NavButton>
+                    Login
+                  </NavButton>
+                </NavLink>
+              )}
+            </ThemeProvider>
           </Box>
         </Container>
       </Toolbar>
