@@ -8,6 +8,7 @@ interface Props {
 
 const ThemeProvider = (props: Props) => {
   // TODO: Add light/dark mode support
+
   return <MuiThemeProvider theme={theme}>{props.children}</MuiThemeProvider>;
 };
 

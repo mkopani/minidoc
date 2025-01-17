@@ -14,6 +14,7 @@ import CreateDocumentButton from './CreateDocumentButton';
 const DocumentsListPage = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
 
+  // Fetch documents from API
   const fetchDocuments = async () => {
     try {
       const response = await api.get<Document[]>('/documents/');
@@ -23,12 +24,14 @@ const DocumentsListPage = () => {
     }
   };
 
+  // Fetch documents on initial render
   useEffect(() => {
     fetchDocuments();
   }, []);
 
   return (
     <Layout>
+      {/* Header */}
       <Box
         sx={{
           display: 'flex',
@@ -41,17 +44,20 @@ const DocumentsListPage = () => {
         <Typography variant="h4" component="div">
           My Documents
         </Typography>
+        {/* Only show New Document button if documents already exist */}
         {documents.length ? (
           <CreateDocumentButton>New Document</CreateDocumentButton>
         ) : null}
       </Box>
 
+      {/* Documents view */}
       {documents.length ? (
         <DocumentsList
           documents={documents}
           onSuccessfulDelete={fetchDocuments}
         />
       ) : (
+        // Display notice if no documents found
         <Box
           sx={{
             display: 'flex',

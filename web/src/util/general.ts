@@ -1,8 +1,14 @@
+/**
+ * Format the date to a readable and relative format.
+ */
 export const formatUpdatedAt = (date: string) => {
+  let updatedAtReadable = '';
   const updatedAtDate = new Date(date);
   const now = new Date();
+  // Calculate the difference in milliseconds
   const diff = now.getTime() - updatedAtDate.getTime();
-  let updatedAtReadable = '';
+
+  // Compute different time units
   if (diff < 1000) {
     updatedAtReadable = 'now';
   } else if (diff < 60 * 1000) {

@@ -24,6 +24,7 @@ const useWebsocketProvider = (props: Props) => {
 
   useEffect(() => {
     try {
+      // Initialize WebSocket provider
       const provider = new WebsocketProvider(
         `ws://localhost:8000/ws/documents/`,
         documentId,
@@ -31,6 +32,7 @@ const useWebsocketProvider = (props: Props) => {
       );
       providerRef.current = provider;
 
+      // Handle load event
       provider.on('status', (event: { status: string }) => {
         if (event.status === 'connected') {
           console.log('Connected to WebSocket server');
@@ -39,7 +41,11 @@ const useWebsocketProvider = (props: Props) => {
       });
 
       if (provider.ws) {
+        // Extract original onmessage handler in order not to override it
+        // and prevent Yjs events from being processed
         const originalOnMessage = provider.ws.onmessage;
+
+        // Handle incoming messages for custom events
         provider.ws.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
@@ -65,15 +71,14 @@ const useWebsocketProvider = (props: Props) => {
           }
         };
       }
-
-      // onLoad();
     } catch (error) {
       console.error('Failed to establish WebSocket connection', { error });
     }
 
     return () => {
       if (providerRef.current) {
-        providerRef.current.destroy(); // Clean up provider on unmount
+        // Clean up provider on unmount
+        providerRef.current.destroy();
       }
     };
   }, [documentId]);
@@ -82,6 +87,7 @@ const useWebsocketProvider = (props: Props) => {
     eventType: WebsocketEventType,
     data: Record<string, unknown> = {}
   ) => {
+    // Send message only if WebSocket connection is established
     if (providerRef?.current?.ws && providerRef.current.wsconnected) {
       providerRef.current.ws.send(
         JSON.stringify({ eventType, senderId: senderIdRef.current, ...data })
@@ -89,10 +95,12 @@ const useWebsocketProvider = (props: Props) => {
     }
   };
 
+  // Save publish event
   const publishSaveDocument = () => {
     sendMessage(WebsocketEventType.SAVE);
   };
 
+  // Title update publish event
   const publishUpdateTitle = (title: string) => {
     sendMessage(WebsocketEventType.TITLE_UPDATE, { title });
   };

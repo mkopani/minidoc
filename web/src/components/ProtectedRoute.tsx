@@ -12,7 +12,7 @@ const ProtectedRoute = (props: Props) => {
 
   const user = useSelector((state: RootState) => state.user);
 
-  // If user not authenticated, redirect to login page
+  // If not authenticated, redirect to login page
   if (!user.token) {
     return <Navigate to="/login" replace />;
   }
