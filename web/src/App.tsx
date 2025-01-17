@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route,Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import DocumentEditorPage from '@/pages/DocumentEditorPage';
 import DocumentsListPage from '@/pages/DocumentsListPage';

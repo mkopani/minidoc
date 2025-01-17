@@ -11,7 +11,6 @@ import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import { useState } from 'react';
 
-import DocumentPreview from '@/components/DocumentPreview';
 import type { Document } from '@/models';
 import { formatUpdatedAt } from '@/util/general';
 
@@ -23,7 +22,7 @@ interface Props {
 
 const DocumentRow = (props: Props) => {
   const { document, onClick, onDelete } = props;
-  const { title, content, updated_at } = document;
+  const { title, updated_at } = document;
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -60,7 +59,9 @@ const DocumentRow = (props: Props) => {
         </TableCell>
 
         <TableCell align="left" color="textSecondary">
-          <DocumentPreview content={content} />
+          {/* TODO: Re-enable after extracting readable text from YDoc state */}
+          {/* <DocumentPreview content={content} /> */}
+          &nbsp;
         </TableCell>
 
         <TableCell align="left">{formatUpdatedAt(updated_at)}</TableCell>

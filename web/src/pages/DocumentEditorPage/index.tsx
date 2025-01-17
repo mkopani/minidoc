@@ -1,107 +1,112 @@
+// import PersonAddIcon from '@mui/icons-material/PersonAdd';
+// import Button from '@mui/material/Button';
 import ArticleIcon from '@mui/icons-material/Article';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import CircularProgress from '@mui/material/CircularProgress';
-import Snackbar, { SnackbarProps } from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { v4 as uuid } from 'uuid';
+import * as Y from 'yjs';
 
 import api from '@/api';
 import DocumentEditor from '@/components/DocumentEditor';
 import Layout from '@/components/Layout';
+import useWebsocketProvider from '@/hooks/useWebsocketProvider';
 import { Document } from '@/models';
 import { formatUpdatedAt } from '@/util/general';
 
 import TitleInputField from './TitleInputField';
 
+// TODO: Look at moving WebSocket logic and methods back into this file
 const DocumentEditorPage = () => {
   const { id } = useParams<{ id?: string }>();
-  // TODO: Start WebSocket connection for real-time collaboration
 
   const isNewDocument = !id;
 
-  const idRef = useRef<string | undefined>(id);
-  const documentRef = useRef<Document | null>(null);
-  const hasTypingBegunRef = useRef<boolean>(false);
-
-  const [content, setContent] = useState<string>('');
-  const [snackbars, setSnackbars] = useState<SnackbarProps[]>([]);
-  const [documentTitle, setDocumentTitle] =
-    useState<string>('Untitled document');
+  const [title, setTitle] = useState<string>('Untitled document');
   const [editingTitle, setEditingTitle] = useState<boolean>(false);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState<string>('');
+  const [loading, setLoading] = useState(true);
 
-  const isLoading = !(isNewDocument || content);
+  const idRef = useRef(id || uuid());
+  const yDocRef = useRef(new Y.Doc());
 
+  useEffect(() => {
+    // Initialize 'content' field in Y.Doc
+    yDocRef.current.getText('content');
+
+    if (!id) {
+      // Generate new uuid and replace the current URL
+      window.history.replaceState(null, '', `/document/${idRef.current}`);
+    }
+  }, []);
+
+  const handleTitleUpdate = (title: string) => {
+    setTitle(title);
+  };
+
+  const handleSave = () => {
+    setLastUpdatedAt(new Date().toISOString());
+  };
+
+  const handleLoad = () => {
+    setLoading(false);
+  };
+
+  const { publishSaveDocument, publishUpdateTitle } = useWebsocketProvider({
+    documentId: idRef.current,
+    yDocRef,
+    onTitleUpdate: handleTitleUpdate,
+    onSave: handleSave,
+    onLoad: handleLoad,
+  });
+
+  // TODO: Review
   const fetchDocument = async () => {
     const { data } = await api.get<Document>(`/documents/${id}`);
 
-    documentRef.current = data;
-    setContent(data.content);
-    setDocumentTitle(data.title);
+    setTitle(data.title);
+    setLastUpdatedAt(data.updated_at);
   };
 
-  const queueSnackbar = (snackbar: SnackbarProps) => {
-    setSnackbars((prev) => [...prev, snackbar]);
+  const handleStartEditingTitle = () => {
+    setEditingTitle(true);
   };
 
-  const saveDocument = useCallback(
-    async (titleOverride?: string) => {
-      const title = titleOverride || documentTitle;
+  const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setTitle(event.target.value);
+  };
 
-      try {
-        if (isNewDocument) {
-          const { data } = await api.post<Document>('/documents/', {
-            title,
-            content,
-          });
-          // Update ref
-          documentRef.current = data;
+  const handleFinishEditingTitle = () => {
+    setEditingTitle(false);
+    const newTitle = title.trim() || 'Untitled document';
+    setTitle(newTitle);
+    publishUpdateTitle(newTitle);
+  };
 
-          // Update address bar URL with new document ID
-          const { id } = data;
-          idRef.current = id;
-          window.history.replaceState({}, '', `/document/${id}`);
-        } else {
-          const { data } = await api.patch(`/documents/${idRef.current}/`, {
-            title,
-            content,
-          });
-          // Update ref
-          documentRef.current = data;
-        }
+  // TODO: Uncomment after implementing collaborators dialog
+  // const handleOpenCollabDialog = () => {
+  //   // setDialogOpen(true);
 
-        queueSnackbar({
-          message: 'Changes saved',
-          open: true,
-          autoHideDuration: 2000,
-        });
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          queueSnackbar({
-            message: 'Error saving changes',
-            open: true,
-            autoHideDuration: 2000,
-          });
-        }
-        console.error(error);
-      }
-    },
-    [content, documentTitle, isNewDocument]
-  );
+  //   console.log('Collaborators dialog open');
+  // };
+
+  // const handleCloseCollabDialog = () => {
+  //   setDialogOpen(false);
+  // };
 
   // Implement a method where the document is saved when the user presses Cmd+S on Mac or Ctrl+S on Windows
   const handleSaveShortcut = useCallback(
     (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key === 's') {
         event.preventDefault();
-        saveDocument();
+        publishSaveDocument();
       }
     },
-    [saveDocument]
+    []
   );
 
   useEffect(() => {
@@ -111,48 +116,11 @@ const DocumentEditorPage = () => {
     };
   }, [handleSaveShortcut]);
 
-  const handleChange = (newContent: string) => {
-    if (!hasTypingBegunRef.current) {
-      hasTypingBegunRef.current = true;
-    }
-    setContent(newContent);
-  };
-
-  const handleStartEditingTitle = () => {
-    setEditingTitle(true);
-  };
-
-  const handleChangeTitle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setDocumentTitle(event.target.value);
-  };
-
-  const handleFinishEditingTitle = async () => {
-    setEditingTitle(false);
-    let title = documentTitle.trim();
-    if (!title) {
-      title = 'Untitled document';
-      setDocumentTitle(title);
-    }
-    await saveDocument(title);
-  };
-
-  const handleOpenCollabDialog = () => {
-    // TODO: Uncomment after implementing collaborators dialog
-    // setDialogOpen(true);
-
-    console.log('Collaborators dialog open');
-  };
-
-  // const handleCloseCollabDialog = () => {
-  //   setDialogOpen(false);
-  // };
-
   useEffect(() => {
     if (!isNewDocument) {
       fetchDocument();
     }
-     
-  }, []);
+  }, [isNewDocument]);
 
   return (
     <Layout>
@@ -174,35 +142,38 @@ const DocumentEditorPage = () => {
             <ArticleIcon color="primary" />
             {editingTitle ? (
               <TitleInputField
-                value={documentTitle}
+                value={title}
                 onChange={handleChangeTitle}
                 onBlur={handleFinishEditingTitle}
               />
             ) : (
-              <Typography
-                variant="h6"
-                component="div"
-                fontWeight={500}
-                sx={{
-                  '&:hover': {
-                    color: 'primary.main',
-                    cursor: 'pointer',
-                    textDecoration: 'underline',
-                  },
-                }}
-                onClick={handleStartEditingTitle}
-              >
-                {documentTitle}
-              </Typography>
+              <Tooltip title="Click to edit" arrow>
+                <Typography
+                  variant="h6"
+                  component="div"
+                  fontWeight={500}
+                  sx={{
+                    '&:hover': {
+                      color: 'primary.main',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                    },
+                  }}
+                  onClick={handleStartEditingTitle}
+                >
+                  {title || 'Untitled document'}
+                </Typography>
+              </Tooltip>
             )}
-            {documentRef.current ? (
+            {lastUpdatedAt ? (
               <Typography variant="body1" color="textSecondary">
-                {formatUpdatedAt(documentRef.current.updated_at)}
+                {formatUpdatedAt(lastUpdatedAt)}
               </Typography>
             ) : null}
           </Stack>
 
-          <Box>
+          {/* TODO: Uncomment after implementing collaboration */}
+          {/* <Box>
             <Button
               onClick={handleOpenCollabDialog}
               variant="contained"
@@ -212,7 +183,7 @@ const DocumentEditorPage = () => {
             >
               Collaborate
             </Button>
-          </Box>
+          </Box> */}
         </Box>
 
         {/* Document editor */}
@@ -223,27 +194,16 @@ const DocumentEditorPage = () => {
             height: '100%',
             width: '100%',
             justifyContent: 'center',
-            alignItems: isLoading ? 'center' : undefined,
+            alignItems: loading ? 'center' : undefined,
           }}
         >
-          {isLoading ? (
+          {loading ? (
             <CircularProgress color="primary" size="3rem" />
           ) : (
-            <DocumentEditor currentContent={content} onChange={handleChange} />
+            <DocumentEditor yDocRef={yDocRef} />
           )}
         </Box>
       </Stack>
-
-      {/* TODO: Implement collaborators dialog */}
-      {snackbars.map((snackbar, index) => (
-        <Snackbar
-          key={index}
-          {...snackbar}
-          onClose={() =>
-            setSnackbars((prev) => prev.filter((_, i) => i !== index))
-          }
-        />
-      ))}
     </Layout>
   );
 };

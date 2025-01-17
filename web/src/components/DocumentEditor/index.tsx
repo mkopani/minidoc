@@ -1,5 +1,6 @@
 import './styles.css';
 
+import { Collaboration } from '@tiptap/extension-collaboration';
 import Underline from '@tiptap/extension-underline';
 import StarterKit from '@tiptap/starter-kit';
 import {
@@ -13,22 +14,16 @@ import {
   type RichTextEditorRef,
 } from 'mui-tiptap';
 import { useRef } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
+import * as Y from 'yjs';
 
 interface Props {
-  currentContent: string;
-  onChange: (newContent: string) => void;
+  yDocRef: React.MutableRefObject<Y.Doc>;
 }
 
 const DocumentEditor = (props: Props) => {
-  const { currentContent, onChange } = props;
+  const { yDocRef } = props;
 
   const rteRef = useRef<RichTextEditorRef>(null);
-
-  // Debounce the content update to avoid updating the state too frequently
-  const debouncedSetContent = useDebouncedCallback((html) => {
-    onChange(html);
-  }, 300);
 
   // Avoid deselecting the editor when clicking on the blank area
   const handleBlankAreaClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -56,12 +51,15 @@ const DocumentEditor = (props: Props) => {
       <RichTextEditor
         ref={rteRef}
         className="full-height"
-        extensions={[StarterKit, Underline]}
-        onUpdate={({ editor }) => {
-          const html = editor.getHTML(); // Get current content as HTML
-          debouncedSetContent(html); // Update the state with the current content
-        }}
-        content={currentContent}
+        extensions={[
+          StarterKit.configure({
+            history: false,
+          }),
+          Underline,
+          Collaboration.configure({
+            document: yDocRef.current,
+          }),
+        ]}
         renderControls={() => (
           <div onClick={(e) => e.stopPropagation()}>
             <MenuControlsContainer className="menu-controls">
