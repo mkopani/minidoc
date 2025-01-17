@@ -42,7 +42,6 @@ class DocumentConsumer(YjsConsumer):
         #     #     doc.apply_changes(change)
 
         # Observe changes
-        doc.observe(self.on_update_event)
         return doc
     
     async def connect(self):
@@ -58,10 +57,6 @@ class DocumentConsumer(YjsConsumer):
             logging.error(f"Error during WebSocket connect: {e}")
             await self.close()
 
-    def on_update_event(self, event):
-        # TODO: Might not be necessary
-        logging.info(f"Received update event: {event}")
-
     async def doc_update(self, update_wrapper):
         update = update_wrapper['update']
         self.ydoc.apply_update(update)
@@ -69,31 +64,34 @@ class DocumentConsumer(YjsConsumer):
 
     async def receive(self, text_data=None, bytes_data=None):
         if text_data:
-            logging.info(f'TEXT: {text_data}')
             try:
                 data = json.loads(text_data)
                 event_type = data.get('eventType')
 
-                # TODO: Handle custom events; use the "type" field to trigger other send methods here
                 if event_type == "TITLE_UPDATE":
                     from .models import Document
 
                     document = await sync_to_async(Document.objects.get)(id=self.get_document_id())
-                    title = data.get('title').trim()
-                    if not title:
-                        title = 'Untitled Document'
+                    title = data.get('title', 'Untitled Document').strip()
                     document.title = title
                     await sync_to_async(document.save)()
 
                     await self.channel_layer.group_send(
                         self.room_name,
                         {
-                            'type': 'title_update',
-                            'title': title
+                            'type': 'broadcast_title_update',
+                            'eventType': 'TITLE_UPDATE',
+                            'title': title,
                         }
                     )
                 elif event_type == "SAVE":
-                    pass # TODO
+                    await self.channel_layer.group_send(
+                        self.room_name,
+                        {
+                            'type': 'broadcast_save',
+                            'eventType': 'SAVE',
+                        }
+                    )
                 else:
                     await self.send(
                         json.dumps({'error': 'Invalid event type'})
@@ -121,11 +119,18 @@ class DocumentConsumer(YjsConsumer):
 
         await super().disconnect(code)
 
-    async def title_update(self, title):
+    async def broadcast_title_update(self, event):
         await self.send(
             json.dumps({
-                'eventType': 'TITLE_UPDATE',
-                'title': title,
+                'eventType': event['eventType'],
+                'title': event['title'],
+            })
+        )
+
+    async def broadcast_save(self, event):
+        await self.send(
+            json.dumps({
+                'eventType': event['eventType'],
             })
         )
 

@@ -7,12 +7,14 @@ import Snackbar, { SnackbarProps } from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import * as Y from 'yjs';
 
 import api from '@/api';
 import DocumentEditor from '@/components/DocumentEditor';
 import Layout from '@/components/Layout';
+import useWebsocketProvider from '@/hooks/useWebsocketProvider';
 import { Document } from '@/models';
 import { formatUpdatedAt } from '@/util/general';
 
@@ -21,7 +23,6 @@ import TitleInputField from './TitleInputField';
 // TODO: Look at moving WebSocket logic and methods back into this file
 const DocumentEditorPage = () => {
   const { id } = useParams<{ id?: string }>();
-  // TODO: Start WebSocket connection for real-time collaboration
 
   const isNewDocument = !id;
 
@@ -29,13 +30,34 @@ const DocumentEditorPage = () => {
   const [title, setTitle] = useState<string>('Untitled document');
   const [editingTitle, setEditingTitle] = useState<boolean>(false);
   const [lastUpdatedAt, setLastUpdatedAt] = useState<string>('');
-
-  // TODO: Re-enable loading state after refining WebSocket
-  // const isLoading = !(isNewDocument);
+  const [loading, setLoading] = useState(true);
 
   // const queueSnackbar = (snackbar: SnackbarProps) => {
   //   setSnackbars((prev) => [...prev, snackbar]);
+  
   // };
+
+  const yDocRef = useRef(new Y.Doc());
+
+  const handleTitleUpdate = (title: string) => {
+    setTitle(title);
+  };
+
+  const handleSave = () => {
+    setLastUpdatedAt(new Date().toISOString());
+  };
+
+  const handleLoad = () => {
+    setLoading(false);
+  };
+
+  const { publishSaveDocument, publishUpdateTitle } = useWebsocketProvider({
+    documentId: id,
+    yDocRef,
+    onTitleUpdate: handleTitleUpdate,
+    onSave: handleSave,
+    onLoad: handleLoad,
+  });
 
   const fetchDocument = async () => {
     const { data } = await api.get<Document>(`/documents/${id}`);
@@ -60,12 +82,10 @@ const DocumentEditorPage = () => {
       setTitle(title);
     }
 
-    // TODO: Send message to WebSocket with eventType `UPDATE_TITLE`
-    // await saveDocument(title);
-    // sendMessage({ content, title: newTitle });
+    publishUpdateTitle(newTitle);
   };
 
-// TODO: Uncomment after implementing collaborators dialog
+  // TODO: Uncomment after implementing collaborators dialog
   // const handleOpenCollabDialog = () => {
   //   // setDialogOpen(true);
 
@@ -75,6 +95,24 @@ const DocumentEditorPage = () => {
   // const handleCloseCollabDialog = () => {
   //   setDialogOpen(false);
   // };
+
+  // Implement a method where the document is saved when the user presses Cmd+S on Mac or Ctrl+S on Windows
+  const handleSaveShortcut = useCallback(
+    (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key === 's') {
+        event.preventDefault();
+        publishSaveDocument();
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleSaveShortcut);
+    return () => {
+      window.removeEventListener('keydown', handleSaveShortcut);
+    };
+  }, [handleSaveShortcut]);
 
   useEffect(() => {
     if (!isNewDocument) {
@@ -154,19 +192,14 @@ const DocumentEditorPage = () => {
             height: '100%',
             width: '100%',
             justifyContent: 'center',
-            // alignItems: isLoading ? 'center' : undefined,
+            alignItems: loading ? 'center' : undefined,
           }}
         >
-          <DocumentEditor documentId={id} />
-          {/* {isLoading || !id ? (
+          {loading ? (
             <CircularProgress color="primary" size="3rem" />
           ) : (
-            <DocumentEditor
-              documentId={id}
-              // currentContent={content}
-              // onChange={handleChangeContent}
-            />
-          )} */}
+            <DocumentEditor yDocRef={yDocRef} />
+          )}
         </Box>
       </Stack>
 
