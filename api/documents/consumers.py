@@ -10,9 +10,11 @@ logger = logging.getLogger("django.channels")
 
 
 class DocumentConsumer(YjsConsumer):
+    initial_state: bytes
     state_modified: bool
 
     def __init__(self, *args, **kwargs):
+        self.initial_state = b''
         self.state_modified = False
         super().__init__(*args, **kwargs)
 
@@ -38,8 +40,10 @@ class DocumentConsumer(YjsConsumer):
             defaults={'title': 'Untitled Document', 'content': b''},  # Use default binary content
         )
 
+        # Initialize the document with the content from the database
         if db_document.content != b'':
             Y.apply_update(doc, db_document.content)
+            self.initial_state = db_document.content
 
         doc.observe_after_transaction(self.on_update_event)
         return doc
@@ -92,8 +96,10 @@ class DocumentConsumer(YjsConsumer):
         if not self.state_modified:
             return await super().disconnect(code)
 
-        # Save document content to database
-        await self.save_changes_to_document()
+        # Only save to database if the document has been modified
+        if self.initial_state != b'' and self.initial_state != Y.encode_state_as_update(self.ydoc):
+            # Save document content to database
+            await self.save_changes_to_document()
 
         await super().disconnect(code)
 
